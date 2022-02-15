@@ -1,6 +1,7 @@
 import "./App.css";
 import React, { useEffect, useState } from "react";
 import { Rating } from "react-simple-star-rating";
+import { array } from "prop-types";
 
 function App() {
   const [data, setData] = useState(null);
@@ -9,6 +10,7 @@ function App() {
   const [modal, setModal] = useState(null);
   const [newMap, setNewMap] = useState(null);
   const [filter, setFilter] = useState(false);
+  const [noFilter, setNoFilter] = useState(false);
 
   useEffect(() => {
     const url =
@@ -67,12 +69,28 @@ function App() {
   };
 
   const handleRating = e => {
-    // console.log(e.target.value);
-    console.log(arrayResult.filter(e => e.rating < e.target.value));
-    if (e.target.rating == true) {
-      // setNewMap(arrayResult.filter(d => d.rating < e.target.rating));
-    } else {
-      setNewMap(null);
+    if (e.target.value) {
+      console.log(e.target.value);
+      const filtered = arrayResult.filter(d => d.rating == e.target.value);
+      console.log(filtered);
+      if (filtered.length) {
+        setNewMap(filtered);
+      } else {
+        setNoFilter(!noFilter);
+        setNewMap(null);
+      }
+    }
+  };
+
+  const handleSortBy = e => {
+    if (e.target.checked == true) {
+      if (e.target.value == "rating") {
+        setNewMap(arrayResult.sort((a, b) => b.rating - a.rating));
+      } else if (e.target.value == "High to Low") {
+        setNewMap(arrayResult.sort((a, b) => b.price - a.price));
+      } else if (e.target.value == "low to high") {
+        setNewMap(arrayResult.sort((a, b) => a.price - b.price));
+      }
     }
   };
 
@@ -80,7 +98,7 @@ function App() {
   const ratings = [0, 1, 2, 3, 4, 5];
 
   return (
-    <div>
+    <div style={{ backgroundColor: "#ffffdf" }}>
       <div>
         <div
           className={filter == true ? "dropdown" : "dropup"}
@@ -88,9 +106,9 @@ function App() {
         ></div>
       </div>
       {filter == true && (
-        <div>
-          <div>
-            Prices
+        <div className="filters">
+          <div className="catergory">
+            <div>Price</div>
             {uniqueTypes.map(k => (
               <div style={{ display: "flex" }}>
                 <input
@@ -102,8 +120,23 @@ function App() {
               </div>
             ))}
           </div>
-          <div>
-            Type
+          <div className="catergory">
+            <div>Rating</div>
+            {ratings.map(r => (
+              <div style={{ display: "flex" }}>
+                <input
+                  type="checkbox"
+                  value={r}
+                  onChange={e => handleRating(e)}
+                />
+                <div>
+                  <Rating initialValue={r} size={22} readonly />
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="catergory">
+            <div>Type </div>
             {uniquePrices.map(d => (
               <div style={{ display: "flex" }}>
                 <input
@@ -115,22 +148,42 @@ function App() {
               </div>
             ))}
           </div>
-          <div>
-            Rating
-            {ratings.map(r => (
-              <div style={{ display: "flex" }}>
-                <input
-                  type="checkbox"
-                  value={r}
-                  onChange={e => handleRating(e)}
-                />
-                <div>{r}</div>
-              </div>
-            ))}
+          <div className="catergory">
+            <div>Sort</div>
+            <div style={{ display: "flex" }}>
+              <input
+                type="checkbox"
+                value={"High to Low"}
+                onChange={e => handleSortBy(e)}
+              />
+              <div>Highest to Lowest</div>
+            </div>
+            <div style={{ display: "flex" }}>
+              <input
+                type="checkbox"
+                value={"low to high"}
+                onChange={e => handleSortBy(e)}
+              />
+              <div>lowest to highest</div>
+            </div>
+            <div style={{ display: "flex" }}>
+              <input
+                type="checkbox"
+                value={"rating"}
+                onChange={e => handleSortBy(e)}
+              />
+              <div>By rating</div>
+            </div>
           </div>
         </div>
       )}
-      <div>
+      {noFilter == true && (
+        <div style={{ textAlign: "center" }}>
+          There are no reviews at this rating
+        </div>
+      )}
+
+      <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
         {newMap !== null && (
           <div
             style={{
@@ -138,44 +191,20 @@ function App() {
               display: "flex",
               flexDirection: "row",
               flexWrap: "wrap",
-              justifyContent: "center"
+              justifyContent: "center",
+              width: "80%"
             }}
           >
             {newMap.map(d => (
-              <div
-                style={{
-                  border: "solid 1px black",
-                  display: "flex",
-                  alignTtems: " center",
-                  justifyContent: "center",
-                  flexDirection: "column",
-                  width: "30%",
-                  textAlign: "center",
-                  minHeight: 200,
-                  alignItems: "center",
-                  padding: "1%",
-                  marginBottom: 20,
-                  marginRight: 5,
-                  marginLeft: 5
-                }}
-              >
+              <div className="productContainer">
                 <img src={d.image_link} alt="productImage"></img>
-                <div
-                  style={{
-                    fontSize: 18,
-                    fontWeight: "bold",
-                    minHeight: "50px"
-                  }}
-                >
-                  {d.name}
-                </div>
+                <div className="productTitle">{d.name}</div>
                 <div>{d.price}</div>
                 {d.rating > 0 ? (
                   <Rating initialValue={d.rating} size={22} readonly />
                 ) : (
                   <div>
                     <Rating initialValue={0} size={22} readonly />
-                    <div> No reveiws</div>
                   </div>
                 )}
                 <div className="viewMore" onClick={() => setModal(d)}>
@@ -192,44 +221,20 @@ function App() {
               display: "flex",
               flexDirection: "row",
               flexWrap: "wrap",
-              justifyContent: "center"
+              justifyContent: "center",
+              width: "80%"
             }}
           >
             {arrayResult.map(d => (
-              <div
-                style={{
-                  border: "solid 1px black",
-                  display: "flex",
-                  alignTtems: " center",
-                  justifyContent: "center",
-                  flexDirection: "column",
-                  width: "30%",
-                  textAlign: "center",
-                  minHeight: 200,
-                  alignItems: "center",
-                  padding: "1%",
-                  marginBottom: 20,
-                  marginRight: 5,
-                  marginLeft: 5
-                }}
-              >
+              <div className="productContainer">
                 <img src={d.image_link} alt="productImage"></img>
-                <div
-                  style={{
-                    fontSize: 18,
-                    fontWeight: "bold",
-                    minHeight: "50px"
-                  }}
-                >
-                  {d.name}
-                </div>
+                <div className="productTitle">{d.name}</div>
                 <div>{d.price}</div>
                 {d.rating > 0 ? (
                   <Rating initialValue={d.rating} size={22} readonly />
                 ) : (
                   <div>
                     <Rating initialValue={0} size={22} readonly />
-                    <div> No reveiws</div>
                   </div>
                 )}
                 <div className="viewMore" onClick={() => setModal(d)}>
@@ -298,7 +303,6 @@ function App() {
                           readonly
                           style={{ display: "flex", alignItems: "center" }}
                         />
-                        <div> No reveiws</div>
                       </div>
                     )}
                   </div>
