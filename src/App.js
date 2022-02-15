@@ -11,6 +11,7 @@ function App() {
   const [newMap, setNewMap] = useState(null);
   const [filter, setFilter] = useState(false);
   const [noFilter, setNoFilter] = useState(false);
+  const [initialShow, setInitialShow] = useState(10);
 
   useEffect(() => {
     const url =
@@ -61,6 +62,7 @@ function App() {
   const uniqueTypes = [...new Set(types)];
 
   const handleType = e => {
+    setInitialShow(10);
     if (e.target.checked == true) {
       setNewMap(arrayResult.filter(d => d.product_type == e.target.value));
     } else {
@@ -69,6 +71,7 @@ function App() {
   };
 
   const handleRating = e => {
+    setInitialShow(10);
     if (e.target.value) {
       console.log(e.target.value);
       const filtered = arrayResult.filter(d => d.rating == e.target.value);
@@ -83,6 +86,7 @@ function App() {
   };
 
   const handleSortBy = e => {
+    setInitialShow(10);
     if (e.target.checked == true) {
       if (e.target.value == "rating") {
         setNewMap(arrayResult.sort((a, b) => b.rating - a.rating));
@@ -96,6 +100,15 @@ function App() {
 
   const uniquePrices = [5, 10, 20];
   const ratings = [0, 1, 2, 3, 4, 5];
+
+  const showMore = () => {
+    if (initialShow < arrayResult.length && newMap == null) {
+      setInitialShow(initialShow + 10);
+    }
+    if (newMap !== null && newMap.length > initialShow) {
+      setInitialShow(initialShow + 10);
+    }
+  };
 
   return (
     <div style={{ backgroundColor: "#ffffdf" }}>
@@ -122,7 +135,7 @@ function App() {
           </div>
           <div className="catergory">
             <div>Rating</div>
-            {ratings.map(r => (
+            {ratings.slice(0, initialShow).map(r => (
               <div style={{ display: "flex" }}>
                 <input
                   type="checkbox"
@@ -137,7 +150,7 @@ function App() {
           </div>
           <div className="catergory">
             <div>Type </div>
-            {uniquePrices.map(d => (
+            {uniquePrices.slice(0, initialShow).map(d => (
               <div style={{ display: "flex" }}>
                 <input
                   type="checkbox"
@@ -187,61 +200,111 @@ function App() {
         {newMap !== null && (
           <div
             style={{
-              marginTop: 20,
               display: "flex",
-              flexDirection: "row",
-              flexWrap: "wrap",
               justifyContent: "center",
-              width: "80%"
+              position: "relative"
             }}
           >
-            {newMap.map(d => (
-              <div className="productContainer">
-                <img src={d.image_link} alt="productImage"></img>
-                <div className="productTitle">{d.name}</div>
-                <div>{d.price}</div>
-                {d.rating > 0 ? (
-                  <Rating initialValue={d.rating} size={22} readonly />
-                ) : (
-                  <div>
-                    <Rating initialValue={0} size={22} readonly />
+            <div
+              style={{
+                marginTop: 20,
+                display: "flex",
+                flexDirection: "row",
+                flexWrap: "wrap",
+                justifyContent: "center",
+                width: "80%"
+              }}
+            >
+              {newMap.slice(0, initialShow).map(d => (
+                <div className="productContainer">
+                  <img src={d.image_link} alt="productImage"></img>
+                  <div className="productTitle">{d.name}</div>
+                  <div>{d.price}</div>
+                  {d.rating > 0 ? (
+                    <Rating initialValue={d.rating} size={22} readonly />
+                  ) : (
+                    <div>
+                      <Rating initialValue={0} size={22} readonly />
+                    </div>
+                  )}
+                  <div className="viewMore" onClick={() => setModal(d)}>
+                    View More
                   </div>
-                )}
-                <div className="viewMore" onClick={() => setModal(d)}>
-                  View More
                 </div>
+              ))}
+            </div>
+            {initialShow < newMap.length && (
+              <div className="showMore" onClick={() => showMore()}>
+                Show more
               </div>
-            ))}
+            )}
+            <div
+              style={{
+                position: "absolute",
+                right: 0,
+                bottom: 0,
+                padding: 10
+              }}
+            >
+              {initialShow < newMap.length && <div>1 - {initialShow}</div>}
+              {initialShow >= newMap.length && <div>1-{newMap.length}</div>}
+            </div>
           </div>
         )}
         {newMap == null && (
           <div
             style={{
-              marginTop: 20,
               display: "flex",
-              flexDirection: "row",
-              flexWrap: "wrap",
               justifyContent: "center",
-              width: "80%"
+              position: "relative"
             }}
           >
-            {arrayResult.map(d => (
-              <div className="productContainer">
-                <img src={d.image_link} alt="productImage"></img>
-                <div className="productTitle">{d.name}</div>
-                <div>{d.price}</div>
-                {d.rating > 0 ? (
-                  <Rating initialValue={d.rating} size={22} readonly />
-                ) : (
-                  <div>
-                    <Rating initialValue={0} size={22} readonly />
+            <div
+              style={{
+                marginTop: 20,
+                display: "flex",
+                flexDirection: "row",
+                flexWrap: "wrap",
+                justifyContent: "center",
+                width: "80%"
+              }}
+            >
+              {arrayResult.slice(0, initialShow).map(d => (
+                <div className="productContainer">
+                  <img src={d.image_link} alt="productImage"></img>
+                  <div className="productTitle">{d.name}</div>
+                  <div>{d.price}</div>
+                  {d.rating > 0 ? (
+                    <Rating initialValue={d.rating} size={22} readonly />
+                  ) : (
+                    <div>
+                      <Rating initialValue={0} size={22} readonly />
+                    </div>
+                  )}
+                  <div className="viewMore" onClick={() => setModal(d)}>
+                    View More
                   </div>
-                )}
-                <div className="viewMore" onClick={() => setModal(d)}>
-                  View More
                 </div>
+              ))}
+            </div>
+            {initialShow < arrayResult.length && (
+              <div className="showMore" onClick={() => showMore()}>
+                Show more
               </div>
-            ))}
+            )}
+            <div
+              style={{
+                position: "absolute",
+                right: 0,
+                bottom: 0,
+                padding: 10
+              }}
+            >
+              {initialShow < arrayResult.length && <div>1 - {initialShow}</div>}
+              {initialShow > arrayResult.length && (
+                <div>1-{arrayResult.length}</div>
+              )}
+            </div>
           </div>
         )}
         {modal !== null && (
