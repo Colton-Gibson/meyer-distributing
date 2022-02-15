@@ -233,21 +233,25 @@ function App() {
                 </div>
               ))}
             </div>
-            {initialShow < newMap.length && (
-              <div className="showMore" onClick={() => showMore()}>
-                Show more
+            <div>
+              {initialShow < newMap.length && (
+                <div className="showMore" onClick={() => showMore()}>
+                  Show more
+                </div>
+              )}
+              <div
+                style={{
+                  position: "absolute",
+                  right: "20px",
+                  bottom: 0,
+                  padding: 10,
+                  fontWeight: "bold",
+                  color: "#5e5e5e"
+                }}
+              >
+                {initialShow < newMap.length && <div>1 - {initialShow}</div>}
+                {initialShow >= newMap.length && <div>1-{newMap.length}</div>}
               </div>
-            )}
-            <div
-              style={{
-                position: "absolute",
-                right: 0,
-                bottom: 0,
-                padding: 10
-              }}
-            >
-              {initialShow < newMap.length && <div>1 - {initialShow}</div>}
-              {initialShow >= newMap.length && <div>1-{newMap.length}</div>}
             </div>
           </div>
         )}
@@ -295,9 +299,11 @@ function App() {
             <div
               style={{
                 position: "absolute",
-                right: 0,
+                right: " 20px",
                 bottom: 0,
-                padding: 10
+                padding: 10,
+                fontWeight: "bold",
+                color: "#5e5e5e"
               }}
             >
               {initialShow < arrayResult.length && <div>1 - {initialShow}</div>}

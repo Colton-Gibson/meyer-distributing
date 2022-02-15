@@ -203,5 +203,10 @@ img {
   color: #fff;
   position: absolute;
   right: 20px;
-  bottom: 20px;
+  bottom: 30px;
+}
+
+body {
+  min-height: 1vh;
+  background-color: #ffffdf;
 }
